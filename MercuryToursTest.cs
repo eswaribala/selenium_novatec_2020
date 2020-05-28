@@ -11,7 +11,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Excel = Microsoft.Office.Interop.Excel;
+using System.Diagnostics;
 namespace MercuryTours
 {
     [TestFixture]
@@ -20,9 +21,15 @@ namespace MercuryTours
         private IWebDriver webDriver;
         private String test_url;
         private Hashtable hashtable;
+        private Excel.Application excelApp;
+        private Excel.Workbook excelWorkbook;
+        private Excel.Worksheet excelWorkSheet;
+        private String CurrentSheet = "TestData";
+        private String fileName;
         [SetUp]
         public void InitializeWebDriver()
         {
+            fileName = "G:\\Local disk\\TDD\\FindFlight_v2.xlsx";
             hashtable = ResourceHelper.GetKeyandValues();
             webDriver = new ChromeDriver(hashtable["driver"].ToString());
             test_url = hashtable["url"].ToString();
@@ -54,79 +61,178 @@ namespace MercuryTours
         [Test]
         public void FlightFinderTest()
         {
-            webDriver.Url = test_url;
-            webDriver.FindElement(By.Name("userName")).SendKeys("eswaribala");
-            webDriver.FindElement(By.Name("password")).SendKeys("vigneshbala");
-            webDriver.FindElement(By.Name("login")).Click();
-            //making it to wait for 2000 ms
-            webDriver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3000);
-            //radio button
-           IList<IWebElement> elements= webDriver.FindElements(By.Name("tripType"));
-           //initial value
-            String text = "";
-            foreach(IWebElement element in elements)
+
+
+            excelApp = new Excel.Application();
+            if (excelApp != null)
             {
-                text = element.GetAttribute("value");
-                if (text.Equals("oneway"))
-                    element.Click();
+                excelWorkbook = excelApp.Workbooks.Open(fileName);
+                excelWorkSheet = (Excel.Worksheet)excelWorkbook.Sheets[1];
+
+                Excel.Range excelRange = excelWorkSheet.UsedRange;
+                int rowCount = excelRange.Rows.Count;
+                int colCount = excelRange.Columns.Count;
+                String cellValue;
+                Excel.Range range;
+                
+                int col;
+                String text = "";
+                for (int row = 2; row <= rowCount; row++)
+
+                {
+                    col = 1;
+                    webDriver.Url = "http://demo.guru99.com/test/newtours/reservation.php";
+                   // webDriver.FindElement(By.Name("userName")).SendKeys("eswaribala");
+                   // webDriver.FindElement(By.Name("password")).SendKeys("vigneshbala");
+                   // webDriver.FindElement(By.Name("login")).Click();
+                    //making it to wait for 2000 ms
+                    webDriver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3000);
+
+                    range = (excelWorkSheet.Cells[row, col] as Excel.Range);
+                    if (range.Value != null)
+                    {
+                        cellValue = range.Value.ToString();
+                        Debug.WriteLine(cellValue);
+                        //radio button
+                        IList<IWebElement> elements = webDriver.FindElements(By.Name("tripType"));
+                        //initial value
+
+                        foreach (IWebElement element in elements)
+                        {
+                            text = element.GetAttribute("value");
+                            if (text.Equals(cellValue))
+                                element.Click();
+                        }
+
+                    }
+                    col++;
+                    //drop down list
+                    range = (excelWorkSheet.Cells[row, col] as Excel.Range);
+                    if (range.Value != null)
+                    {
+                        cellValue = range.Value.ToString();
+                        Debug.WriteLine(cellValue);
+
+                        IWebElement passengerElement = webDriver.FindElement(By.Name("passCount"));
+                        SelectElement selectElement = new SelectElement(passengerElement);
+                        selectElement.SelectByValue(cellValue);
+                    }
+                    //making it to wait for 2000 ms
+                    //webDriver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3000);
+                    col++;
+                    range = (excelWorkSheet.Cells[row, col] as Excel.Range);
+                    if (range.Value != null)
+                    {
+                        cellValue = range.Value.ToString();
+                        Debug.WriteLine(cellValue);
+                        IWebElement fromPortElement = webDriver.FindElement(By.Name("fromPort"));
+                        SelectElement selectFromPortElement = new SelectElement(fromPortElement);
+                        selectFromPortElement.SelectByValue(cellValue);
+                    }
+                    col++;
+                    range = (excelWorkSheet.Cells[row, col] as Excel.Range);
+                    if (range.Value != null)
+                    {
+                        cellValue = range.Value.ToString();
+                        Debug.WriteLine(cellValue);
+
+                        IWebElement fromMonthElement = webDriver.FindElement(By.Name("fromMonth"));
+                        SelectElement selectFromMonthElement = new SelectElement(fromMonthElement);
+                        selectFromMonthElement.SelectByValue(cellValue);
+                    }
+                    col++;
+                    range = (excelWorkSheet.Cells[row, col] as Excel.Range);
+                    if (range.Value != null)
+                    {
+                        cellValue = range.Value.ToString();
+                        Debug.WriteLine(cellValue);
+                        IWebElement fromDayElement = webDriver.FindElement(By.Name("fromDay"));
+                        SelectElement selectFromDayElement = new SelectElement(fromDayElement);
+                        selectFromDayElement.SelectByValue(cellValue);
+
+
+                    }
+                    col++;
+                    range = (excelWorkSheet.Cells[row, col] as Excel.Range);
+                    if (range.Value != null)
+                    {
+                        cellValue = range.Value.ToString();
+                        Debug.WriteLine(cellValue);
+
+                        IWebElement toPortElement = webDriver.FindElement(By.Name("toPort"));
+                        SelectElement selectToPortElement = new SelectElement(toPortElement);
+                        selectToPortElement.SelectByValue(cellValue);
+                    }
+                    col++;
+                    range = (excelWorkSheet.Cells[row, col] as Excel.Range);
+                    if (range.Value != null)
+                    {
+                        cellValue = range.Value.ToString();
+                        Debug.WriteLine(cellValue);
+                        IWebElement toMonthElement = webDriver.FindElement(By.Name("toMonth"));
+                        SelectElement selectToMonthElement = new SelectElement(toMonthElement);
+                        selectToMonthElement.SelectByValue(cellValue);
+
+                    }
+                    col++;
+                    range = (excelWorkSheet.Cells[row, col] as Excel.Range);
+                    if (range.Value != null)
+                    {
+                        cellValue = range.Value.ToString();
+                        Debug.WriteLine(cellValue);
+
+                        IWebElement toDayElement = webDriver.FindElement(By.Name("toDay"));
+                        SelectElement selectToDayElement = new SelectElement(toDayElement);
+                        selectToDayElement.SelectByValue(cellValue);
+
+                    }
+
+                    IList<IWebElement> seviceClassElements = webDriver.FindElements(By.Name("servClass"));
+                    //initial value
+                    text = "";
+                    col++;
+                    range = (excelWorkSheet.Cells[row, col] as Excel.Range);
+                    if (range.Value != null)
+                    {
+                        cellValue = range.Value.ToString();
+                        Debug.WriteLine(cellValue);
+
+                        foreach (IWebElement element in seviceClassElements)
+                        {
+                            text = element.GetAttribute("value");
+                            if (text.Equals(cellValue))
+                                element.Click();
+                        }
+                    }
+
+                    //IWebElement airlineElement = webDriver.FindElement(By.Name("airline"));
+                    //SelectElement selectAirlineElement = new SelectElement(airlineElement);
+                    // selectAirlineElement.SelectByValue("Blue Skies Airlines");
+
+                    webDriver.FindElement(By.Name("airline")).Click();
+                    {
+                        var dropdown = webDriver.FindElement(By.Name("airline"));
+                        dropdown.FindElement(By.XPath("//option[. = 'Unified Airlines']")).Click();
+                    }
+                    webDriver.FindElement(By.CssSelector("tr:nth-child(10) option:nth-child(3)")).Click();
+
+                    var js = (IJavaScriptExecutor)webDriver;
+
+                    js.ExecuteScript("window.scrollTo(0,344)");
+
+                    webDriver.FindElement(By.Name("findFlights")).Click();
+                }
+
             }
-            //drop down list
-            IWebElement passengerElement = webDriver.FindElement(By.Name("passCount"));
-            SelectElement selectElement = new SelectElement(passengerElement);
-            selectElement.SelectByValue("2");
-            //making it to wait for 2000 ms
-            //webDriver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3000);
-            IWebElement fromPortElement = webDriver.FindElement(By.Name("fromPort"));
-            SelectElement selectFromPortElement = new SelectElement(fromPortElement);
-            selectFromPortElement.SelectByValue("London");
-            IWebElement fromMonthElement = webDriver.FindElement(By.Name("fromMonth"));
-            SelectElement selectFromMonthElement = new SelectElement(fromMonthElement);
-            selectFromMonthElement.SelectByValue("7");
+            
 
-            IWebElement fromDayElement = webDriver.FindElement(By.Name("fromDay"));
-            SelectElement selectFromDayElement = new SelectElement(fromDayElement);
-            selectFromDayElement.SelectByValue("14");
-
-            IWebElement toPortElement = webDriver.FindElement(By.Name("toPort"));
-            SelectElement selectToPortElement = new SelectElement(toPortElement);
-            selectToPortElement.SelectByValue("Paris");
-            IWebElement toMonthElement = webDriver.FindElement(By.Name("toMonth"));
-            SelectElement selectToMonthElement = new SelectElement(toMonthElement);
-            selectToMonthElement.SelectByValue("7");
-
-            IWebElement toDayElement = webDriver.FindElement(By.Name("toDay"));
-            SelectElement selectToDayElement = new SelectElement(toDayElement);
-            selectToDayElement.SelectByValue("14");
-
-
-            IList<IWebElement> seviceClassElements = webDriver.FindElements(By.Name("servClass"));
-            //initial value
-            text = "";
-            foreach (IWebElement element in seviceClassElements)
-            {
-                text = element.GetAttribute("value");
-                if (text.Equals("Business"))
-                    element.Click();
+                excelWorkbook.Close();
+                excelApp.Quit();
             }
+            
+            
 
-            //IWebElement airlineElement = webDriver.FindElement(By.Name("airline"));
-            //SelectElement selectAirlineElement = new SelectElement(airlineElement);
-            // selectAirlineElement.SelectByValue("Blue Skies Airlines");
-
-            webDriver.FindElement(By.Name("airline")).Click();
-            {
-                var dropdown = webDriver.FindElement(By.Name("airline"));
-                dropdown.FindElement(By.XPath("//option[. = 'Unified Airlines']")).Click();
-            }
-            webDriver.FindElement(By.CssSelector("tr:nth-child(10) option:nth-child(3)")).Click();
-
-            var js = (IJavaScriptExecutor)webDriver;
-
-            js.ExecuteScript("window.scrollTo(0,344)");
-
-            webDriver.FindElement(By.Name("findFlights")).Click();
-
-        }
+        
 
 
 
